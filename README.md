@@ -117,19 +117,17 @@ For Example:
     "libraryName": "antd",
     "libraryDirectory": "lib",   // default: lib
     "style": true,
-    "libraryName2": "antd-mobile", // bak library
-    "libraryDirectory2": "src",   // default: lib
-    "style2": "css",
+    "refer": "antd-mobile", // bak library use next config with's libraryName == antd-mobile
   },
   {
     "libraryName": "antd-mobile"
   },
 ]
 
-import  { View,MobileComponent } from 'antd';
+import  { View,AntdMobileView } from 'antd';
 
 import View from 'antd/lib/view';
-import MobileComponent from 'antd-mobile/src/MobileComponent'
+import AntdMobileView from 'antd-mobile/src/AntdMobileView'
 
 ```
 

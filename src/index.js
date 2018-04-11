@@ -3,7 +3,7 @@ import Plugin from './Plugin';
 
 export default function ({ types }) {
   let plugins = null;
-  let referPlugins = [];
+  let allPlugins = {};
 
   // Only for test
   global.__clearBabelAntdPlugin = () => {
@@ -18,31 +18,10 @@ export default function ({ types }) {
     }
   }
 
-  function getRefreOptions(opts) {
-    if (referPlugins.indexOf((plugin) => plugin.libraryName === opts.libraryName2) < 0) {
-      const {
-        camel2DashComponentName,
-        camel2UnderlineComponentName,
-        camel2DashComponentName2,
-        camel2UnderlineComponentName2,
-      } = opts;
-      return {
-        libraryName: opts.libraryName2 || opts.libraryName,
-        libraryDirectory: opts.libraryDirectory2 || opts.libraryDirectory,
-        style: opts.style2 || opts.style,
-        camel2DashComponentName: camel2DashComponentName2 || camel2DashComponentName,
-        camel2UnderlineComponentName: camel2UnderlineComponentName2 || camel2UnderlineComponentName,
-        fileName: opts.fileName2 || opts.fileName,
-        customName: opts.customName2 || opts.customName,
-      };
-    }
-    return null;
-  }
-
   function newPlugin(opts) {
     const {
       libraryName,
-      libraryName2,
+      refer,
       libraryDirectory,
       style,
       camel2DashComponentName,
@@ -51,12 +30,7 @@ export default function ({ types }) {
       customName,
     } = opts;
     assert(libraryName, 'libraryName should be provided');
-    const referOption = libraryName2 ? getRefreOptions(opts) : null;
-    const referPlugin = referOption ? newPlugin(referOption) : null;
-    if (referPlugin) {
-      referPlugins.push(referPlugin);
-    }
-    return new Plugin(
+    const plugin = new Plugin(
       libraryName,
       libraryDirectory,
       style,
@@ -65,25 +39,27 @@ export default function ({ types }) {
       fileName,
       customName,
       types,
-      referPlugin
+      refer
     );
+    return allPlugins[libraryName] = plugin;
   }
 
   const Program = {
     enter(path, { opts = {} }) {
       // Init plugin instances once.
       if (!plugins) {
-        referPlugins = [];
         if (Array.isArray(opts)) {
           plugins = opts.map((element) => newPlugin(element));
         } else {
-          assert(opts.libraryName, 'libraryName should be provided');
           plugins = [
             newPlugin(opts),
           ];
         }
-        plugins = plugins.concat(referPlugins);
+        plugins.forEach((plugin) => {
+          plugin.referPlugin = allPlugins[plugin.refer];
+        })
       }
+
       applyInstance('ProgramEnter', arguments, this);  // eslint-disable-line
     },
     exit() {

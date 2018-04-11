@@ -25,13 +25,13 @@ export default class Plugin {
     fileName,
     customName,
     types,
-    referPlugin
+    refer
   ) {
     this.specified = null;
     this.libraryObjs = null;
     this.selectedMethods = null;
     this.libraryName = libraryName;
-    this.referPlugin = referPlugin;
+    this.refer = refer;
     this.libraryDirectory = typeof libraryDirectory === 'undefined'
       ? 'lib'
       : libraryDirectory;
