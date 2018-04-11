@@ -24,12 +24,14 @@ export default class Plugin {
     camel2UnderlineComponentName,
     fileName,
     customName,
-    types
+    types,
+    referPlugin
   ) {
     this.specified = null;
     this.libraryObjs = null;
     this.selectedMethods = null;
     this.libraryName = libraryName;
+    this.referPlugin = referPlugin;
     this.libraryDirectory = typeof libraryDirectory === 'undefined'
       ? 'lib'
       : libraryDirectory;
@@ -41,6 +43,15 @@ export default class Plugin {
     this.fileName = fileName || '';
     this.customName = customName;
     this.types = types;
+  }
+
+  resolve(path) {
+    try {
+      require.resolve(path);
+      return true;
+    } catch (ex) {
+      return false;
+    }
   }
 
   importMethod(methodName, file) {
@@ -55,6 +66,9 @@ export default class Plugin {
       const path = winPath(
         this.customName ? this.customName(transformedMethodName) : join(this.libraryName, libraryDirectory, transformedMethodName, this.fileName) // eslint-disable-line
       );
+      if (this.referPlugin && !this.resolve(path)) {
+        return this.referPlugin.importMethod(methodName, file);
+      }
       this.selectedMethods[methodName] = addDefault(file.path, path, { nameHint: methodName });
       if (style === true) {
         addSideEffect(file.path, `${path}/style`);

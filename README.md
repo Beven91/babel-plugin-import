@@ -111,6 +111,28 @@ For Example:
 ]
 ```
 
+```javascript
+[
+  {
+    "libraryName": "antd",
+    "libraryDirectory": "lib",   // default: lib
+    "style": true,
+    "libraryName2": "antd-mobile", // bak library
+    "libraryDirectory2": "src",   // default: lib
+    "style2": "css",
+  },
+  {
+    "libraryName": "antd-mobile"
+  },
+]
+
+import  { View,MobileComponent } from 'antd';
+
+import View from 'antd/lib/view';
+import MobileComponent from 'antd-mobile/src/MobileComponent'
+
+```
+
 ### style
 
 - `["import", { "libraryName": "antd" }]`: import js modularly

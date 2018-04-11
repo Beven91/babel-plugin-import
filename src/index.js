@@ -17,45 +17,69 @@ export default function ({ types }) {
     }
   }
 
+  function newPlugin({
+    libraryName,
+    libraryDirectory,
+    style,
+    camel2DashComponentName,
+    camel2UnderlineComponentName,
+    fileName,
+    customName,
+  }, referPlugin) {
+    assert(libraryName, 'libraryName should be provided');
+    return new Plugin(
+      libraryName,
+      libraryDirectory,
+      style,
+      camel2DashComponentName,
+      camel2UnderlineComponentName,
+      fileName,
+      customName,
+      types,
+      referPlugin
+    );
+  }
+
+  function pushBakPlugin(opts) {
+    if (!plugins.find((plugin) => plugin.libraryName === opts.libraryName2)) {
+      const {
+        camel2DashComponentName,
+        camel2UnderlineComponentName,
+        camel2DashComponentName2,
+        camel2UnderlineComponentName2,
+      } = opts;
+      const newOption = {
+        libraryName: opts.libraryName2 || opts.libraryName,
+        libraryDirectory: opts.libraryDirectory2 || opts.libraryDirectory,
+        style: opts.style2 || opts.style,
+        camel2DashComponentName: camel2DashComponentName2 || camel2DashComponentName,
+        camel2UnderlineComponentName: camel2UnderlineComponentName2 || camel2UnderlineComponentName,
+        fileName: opts.fileName2 || opts.fileName,
+        customName: opts.customName2 || opts.customName,
+      };
+      const plugin = newPlugin(newOption);
+      plugins.push(plugin);
+      return plugin;
+    }
+    return null;
+  }
+
   const Program = {
     enter(path, { opts = {} }) {
       // Init plugin instances once.
       if (!plugins) {
         if (Array.isArray(opts)) {
-          plugins = opts.map(({
-            libraryName,
-            libraryDirectory,
-            style,
-            camel2DashComponentName,
-            camel2UnderlineComponentName,
-            fileName,
-            customName,
-          }) => {
-            assert(libraryName, 'libraryName should be provided');
-            return new Plugin(
-              libraryName,
-              libraryDirectory,
-              style,
-              camel2DashComponentName,
-              camel2UnderlineComponentName,
-              fileName,
-              customName,
-              types
-            );
+          plugins = opts.map((element) => {
+            let referPlugin = null;
+            if (element.libraryName2) {
+              referPlugin = pushBakPlugin(element);
+            }
+            return newPlugin(element, referPlugin);
           });
         } else {
           assert(opts.libraryName, 'libraryName should be provided');
           plugins = [
-            new Plugin(
-              opts.libraryName,
-              opts.libraryDirectory,
-              opts.style,
-              opts.camel2DashComponentName,
-              opts.camel2UnderlineComponentName,
-              opts.fileName,
-              opts.customName,
-              types
-            ),
+            newPlugin(opts),
           ];
         }
       }

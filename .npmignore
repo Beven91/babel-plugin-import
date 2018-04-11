@@ -1,5 +1,6 @@
 .idea
 tmp
+src
 node_modules
 coverage
 __tests__
